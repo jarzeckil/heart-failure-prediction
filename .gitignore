@@ -14,7 +14,7 @@ env/
 .idea
 
 # Poetry
-#poetry.lock
+# poetry.lock
 
 # Jupyter Notebooks
 .ipynb_checkpoints
@@ -27,3 +27,5 @@ data/raw/*
 
 !data/processed/.gitkeep
 !data/raw/.gitkeep
+
+!data/**/*.dvc
