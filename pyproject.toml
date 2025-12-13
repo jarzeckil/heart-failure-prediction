@@ -15,7 +15,8 @@ dependencies = [
     "seaborn (>=0.13.2,<0.14.0)",
     "notebook (>=7.5.0,<8.0.0)",
     "kagglehub (>=0.3.13,<0.4.0)",
-    "ruff (>=0.14.9,<0.15.0)"
+    "ruff (>=0.14.9,<0.15.0)",
+    "pytest (>=9.0.2,<10.0.0)"
 ]
 
 [tool.poetry]
@@ -46,3 +47,8 @@ quote-style = "single"
 known-first-party = ["heart_failure_prediction"]
 # Force sorting within each import section
 force-sort-within-sections = true
+
+[dependency-groups]
+dev = [
+    "pre-commit (>=4.5.0,<5.0.0)"
+]
