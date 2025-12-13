@@ -1,4 +1,8 @@
-.PHONY: install format lint test
+.PHONY: install format lint test init
+
+PROJECT_NAME = heart-failure-prediction
+PYTHON_VERSION = 3.13
+PYTHON_INTERPRETER = python
 
 help:
 	@grep -E '\s##\s' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m  %-30s\033[0m %s\n", $$1, $$2}'
@@ -16,3 +20,7 @@ lint: ## check formating
 
 test: ## run tests
 	poetry run pytest tests/
+
+init: ## create poetry environment
+	poetry env use $(PYTHON_VERSION)
+	@echo ">>> Poetry environment created."
