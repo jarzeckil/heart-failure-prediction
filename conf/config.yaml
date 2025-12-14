@@ -1,0 +1,17 @@
+raw_data:
+  path: "data/raw/heart.csv"
+
+processed_data:
+  dir: "data/processed"
+  train_path: "data/processed/train.csv"
+  test_path: "data/processed/test.csv"
+
+modeling:
+  test_size: 0.2
+  random_state: 42
+  target: "HeartDisease"
+
+processing:
+  missing_vals_cols: ["Cholesterol", "RestingBP"]  # 0 -> NaN
+  cat_features: ["Sex", "ChestPainType", "RestingECG", "ExerciseAngina", "ST_Slope"]
+  num_features: ["Age", "RestingBP", "Cholesterol", "FastingBS", "MaxHR", "Oldpeak"]
