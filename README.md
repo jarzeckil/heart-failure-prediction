@@ -1,9 +1,10 @@
 # Heart Failure Prediction Pipeline 🫀
 [![CI Pipeline](https://github.com/jarzeckil/heart-failure-prediction/actions/workflows/ci.yaml/badge.svg)](https://github.com/jarzeckil/heart-failure-prediction/actions/workflows/ci.yaml)
 
-![Python](https://img.shields.io/badge/python-3.11-blue)
-![Poetry](https://img.shields.io/badge/poetry-1.8-blue)
-
+[![Poetry](https://img.shields.io/endpoint?url=https://python-poetry.org/badge/v0.json)](https://python-poetry.org/)
+![Python](https://img.shields.io/badge/python-3.1x-blue)
+![Sklearn](https://img.shields.io/badge/scikit--learn-F7931E?style=flat-square&logo=scikit-learn&logoColor=white)
+![pytest](https://img.shields.io/badge/py-test-blue?logo=pytest)
 
 End-to-end Machine Learning pipeline for predicting heart failure risk using standard MLOps practices.
 
