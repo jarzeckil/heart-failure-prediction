@@ -11,12 +11,12 @@ install: ## install dependencies
 	poetry install
 
 format: ## auto format files
-	ruff format .
-	ruff check . --fix
+	poetry run ruff format .
+	poetry run ruff check . --fix
 
 lint: ## check formating
-	ruff check .
-	ruff format --check
+	poetry run ruff check .
+	poetry run ruff format --check
 
 test: ## run tests
 	poetry run pytest tests/
