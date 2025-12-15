@@ -134,6 +134,7 @@ def main(cfg: DictConfig) -> None:
     with mlflow.start_run():
         mlflow.log_params(cfg.modeling)
         mlflow.log_params(cfg.processing)
+        mlflow.log_param('n_features', X_train.shape[1])
 
         model = build_pipeline(cfg)
         model_class_name = model.named_steps['model'].__class__.__name__
