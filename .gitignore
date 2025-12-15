@@ -29,3 +29,12 @@ data/raw/*
 !data/raw/.gitkeep
 
 !data/**/*.dvc
+
+# Hydra output
+outputs/
+multirun/
+.hydra/
+
+# MLflow
+mlflow.db
+mlruns/

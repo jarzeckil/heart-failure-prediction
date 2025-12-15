@@ -33,10 +33,13 @@ jobs:
 
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction --no-root
+        run: poetry install --no-interaction
 
       - name: Run Linting (Ruff)
         run: poetry run ruff check .
 
       - name: Check Formatting
         run: poetry run ruff format --check .
+
+      - name: Run Unit Tests
+        run: poetry run pytest tests/
