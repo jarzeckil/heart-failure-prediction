@@ -135,6 +135,8 @@ def main(cfg: DictConfig) -> float:
     model = build_pipeline(cfg)
     model_class_name = model.named_steps['model'].__class__.__name__
 
+    # TODO autolog
+
     run_name = f'{model_class_name}-C={cfg.modeling.params.get("C", "default")}'
     with mlflow.start_run(run_name=run_name):
         mlflow.log_params(cfg.modeling)
