@@ -1,7 +1,7 @@
 defaults:
   - _self_
   - modeling: xgboost
-  - override hydra/sweeper: optuna
+  - override hydra/sweeper: basic
 
 raw_data:
   path: "data/raw/heart.csv"
@@ -19,18 +19,18 @@ processing:
   cat_impute_strategy: "most_frequent"
   num_impute_strategy: "median"
 
-#hydra:
-#  sweeper:
-#    sampler:
-#      seed: 123
-#    direction: maximize
-#    study_name: xgboost_optimization
-#    storage: null
-#    n_trials: 20
-#    n_jobs: 1
-#
-#    params:
-#      # modeling.estimator.n_estimators: choice(75, 100, 150)
-#      modeling.estimator.max_depth: range(3, 6)
-#      modeling.estimator.learning_rate: interval(0.05, 0.15)
-#      modeling.estimator.scale_pos_weight: range(5, 11)
+hydra:
+  sweeper:
+    sampler:
+      seed: 123
+    direction: maximize
+    study_name: xgboost_optimization
+    storage: null
+    n_trials: 20
+    n_jobs: 1
+
+    params:
+      # modeling.estimator.n_estimators: choice(75, 100, 150)
+      modeling.estimator.max_depth: range(3, 6)
+      modeling.estimator.learning_rate: interval(0.05, 0.15)
+      modeling.estimator.scale_pos_weight: range(5, 11)
