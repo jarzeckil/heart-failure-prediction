@@ -1,0 +1,9 @@
+model_type: "sklearn"
+test_size: 0.2
+random_state: 42
+target: "HeartDisease"
+
+estimator:
+  _target_: sklearn.ensemble.RandomForestClassifier
+  random_state: 42
+  criterion: "log_loss"
