@@ -2,12 +2,14 @@ import logging
 import os
 
 import hydra
+from hydra.core.hydra_config import HydraConfig
+from matplotlib import pyplot as plt
 import mlflow
 from omegaconf import DictConfig
 import pandas as pd
+import seaborn as sns
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
-from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
@@ -30,6 +32,8 @@ def build_pipeline(cfg: DictConfig) -> Pipeline:
     cat_columns = list(cfg.processing.cat_features)
     num_imp_strategy = cfg.processing.num_impute_strategy
     cat_imp_strategy = cfg.processing.cat_impute_strategy
+
+    model = hydra.utils.instantiate(cfg.modeling.estimator)
 
     full_pipeline = Pipeline(
         [
@@ -75,7 +79,7 @@ def build_pipeline(cfg: DictConfig) -> Pipeline:
                     ]
                 ),
             ),
-            ('model', LogisticRegression()),
+            ('model', model),
         ]
     )
 
@@ -119,37 +123,78 @@ def split_data(cfg: DictConfig, df: pd.DataFrame) -> tuple:
     return train_test_split(X, y, test_size=test_size, random_state=random_state)
 
 
+def log_feature_importance(pipeline, figsize=(14, 14)):
+    preprocessor = pipeline.named_steps['preprocessing']
+    feature_names = preprocessor.get_feature_names_out()
+
+    model = pipeline.named_steps['model']
+    importances = model.feature_importances_
+
+    if len(feature_names) != len(importances):
+        print('Error: dimensions are not right.')
+        return
+
+    feature_imp_df = pd.DataFrame({'Feature': feature_names, 'Importance': importances})
+
+    feature_imp_df = feature_imp_df.sort_values(by='Importance', ascending=False)
+
+    plt.figure(figsize=figsize)
+    sns.barplot(
+        x='Importance',
+        y='Feature',
+        data=feature_imp_df,
+        palette='viridis',
+        hue='Feature',
+        legend=False,
+    )
+
+    plt.title('Feature Importances')
+    plt.xlabel('Importance')
+    plt.ylabel('Feature name')
+    plt.grid(axis='x', linestyle='--', alpha=0.7)
+    plt.tight_layout()
+
+    plot_path = os.path.join(
+        HydraConfig.get().runtime.output_dir, 'feature_importance.png'
+    )
+    plt.savefig(plot_path)
+    mlflow.log_artifact(plot_path)
+    plt.close()
+    logger.info('Feature importance plot logged to MLflow')
+
+
 @hydra.main(
     config_path=os.path.join(PROJECT_ROOT, 'conf'),
     config_name='config',
     version_base='1.2',
 )
-def main(cfg: DictConfig) -> None:
+def main(cfg: DictConfig) -> float:
     mlflow.set_experiment('Heart failure prediction')
 
-    logger.info('Reading data')
-    data = load_data(path=cfg.raw_data.path)
+    data = load_data(path=hydra.utils.to_absolute_path(cfg.raw_data.path))
     X_train, X_test, y_train, y_test = split_data(cfg, data)
 
-    with mlflow.start_run():
+    model = build_pipeline(cfg)
+    model_class_name = model.named_steps['model'].__class__.__name__
+
+    run_name = f'{model_class_name}'
+    with mlflow.start_run(run_name=run_name):
         mlflow.log_params(cfg.modeling)
         mlflow.log_params(cfg.processing)
         mlflow.log_param('n_features', X_train.shape[1])
-
-        model = build_pipeline(cfg)
-        model_class_name = model.named_steps['model'].__class__.__name__
         mlflow.log_param('model_class', model_class_name)
 
-        logger.info('Training model')
         model.fit(X_train, y_train)
 
-        logger.info('Evaluating model')
         scores = evaluate(model, X_test, y_test)
         mlflow.log_metrics(scores)
 
+        log_feature_importance(model)
         mlflow.sklearn.log_model(model, name='model')
 
-        logger.info('Run logged to MLflow')
+        logger.info(f'Run {run_name} logged to MLflow')
+
+    return scores['recall']
 
 
 if __name__ == '__main__':
