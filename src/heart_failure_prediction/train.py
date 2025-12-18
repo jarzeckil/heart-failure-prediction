@@ -33,7 +33,7 @@ def build_pipeline(cfg: DictConfig) -> Pipeline:
     num_imp_strategy = cfg.processing.num_impute_strategy
     cat_imp_strategy = cfg.processing.cat_impute_strategy
 
-    model = hydra.utils.instantiate(cfg.modeling.estimator)
+    model = hydra.utils.instantiate(cfg.model.estimator)
 
     full_pipeline = Pipeline(
         [
@@ -113,9 +113,9 @@ def evaluate(model: Pipeline, X_test, y_test) -> dict:
 
 
 def split_data(cfg: DictConfig, df: pd.DataFrame) -> tuple:
-    target = cfg.modeling.target
-    test_size = cfg.modeling.test_size
-    random_state = cfg.modeling.random_state
+    target = cfg.model.target
+    test_size = cfg.model.test_size
+    random_state = cfg.model.random_state
 
     y = df[target]
     X = df.drop(target, axis=1)
@@ -179,7 +179,7 @@ def main(cfg: DictConfig) -> float:
 
     run_name = f'{model_class_name}'
     with mlflow.start_run(run_name=run_name):
-        mlflow.log_params(cfg.modeling)
+        mlflow.log_params(cfg.model)
         mlflow.log_params(cfg.processing)
         mlflow.log_param('n_features', X_train.shape[1])
         mlflow.log_param('model_class', model_class_name)
