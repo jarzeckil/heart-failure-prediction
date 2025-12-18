@@ -1,3 +1,8 @@
+defaults:
+  - _self_
+  - modeling: xgboost
+  - override hydra/sweeper: optuna
+
 raw_data:
   path: "data/raw/heart.csv"
 
@@ -6,13 +11,6 @@ processed_data:
   train_path: "data/processed/train.csv"
   test_path: "data/processed/test.csv"
 
-modeling:
-  test_size: 0.2
-  random_state: 42
-  target: "HeartDisease"
-  params:
-    C: 1.0
-    solver: "lbfgs"
 
 processing:
   missing_vals_cols: ["Cholesterol", "RestingBP"]  # 0 -> NaN
@@ -21,19 +19,18 @@ processing:
   cat_impute_strategy: "most_frequent"
   num_impute_strategy: "median"
 
-defaults:
-  - override hydra/sweeper: optuna
-
-hydra:
-  sweeper:
-    sampler:
-      seed: 123
-    direction: maximize
-    study_name: heart_failure_optimization
-    storage: null
-    n_trials: 20
-    n_jobs: 1
-
-    params:
-      modeling.params.C: interval(0.001, 10.0)
-      modeling.params.solver: choice("liblinear", "lbfgs")
+#hydra:
+#  sweeper:
+#    sampler:
+#      seed: 123
+#    direction: maximize
+#    study_name: xgboost_optimization
+#    storage: null
+#    n_trials: 20
+#    n_jobs: 1
+#
+#    params:
+#      # modeling.estimator.n_estimators: choice(75, 100, 150)
+#      modeling.estimator.max_depth: range(3, 6)
+#      modeling.estimator.learning_rate: interval(0.05, 0.15)
+#      modeling.estimator.scale_pos_weight: range(5, 11)
