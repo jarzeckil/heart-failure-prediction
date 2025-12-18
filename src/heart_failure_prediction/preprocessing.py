@@ -21,3 +21,6 @@ class ZeroImputer(BaseEstimator, TransformerMixin):
             X_copy[col] = X_copy[col].replace({0: np.nan})
 
         return X_copy
+
+    def get_feature_names_out(self, input_features=None):
+        return input_features
