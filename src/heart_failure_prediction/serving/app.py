@@ -113,6 +113,8 @@ def explain(record: HeartDiseaseRecord):
             sorted(explanation.items(), key=lambda item: abs(item[1]), reverse=True)
         )
 
+        # TODO add cleaning of column names
+
         return sorted_explanation
 
     except Exception as e:
