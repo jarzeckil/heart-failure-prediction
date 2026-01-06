@@ -3,11 +3,13 @@ import os
 
 import hydra
 from hydra.core.hydra_config import HydraConfig
+import joblib
 from matplotlib import pyplot as plt
 import mlflow
 from omegaconf import DictConfig
 import pandas as pd
 import seaborn as sns
+import shap
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
@@ -163,6 +165,31 @@ def log_feature_importance(pipeline, figsize=(14, 14)):
     logger.info('Feature importance plot logged to MLflow')
 
 
+def log_explainer(model, X_train):
+    estimator = model.named_steps['model']
+    preprocessor: ColumnTransformer = model.named_steps['preprocessing']
+
+    X_train_transformed = preprocessor.transform(X_train)
+    background_data = shap.sample(X_train_transformed, 100)
+
+    explainer = shap.TreeExplainer(estimator, data=background_data)
+
+    explainer_path = os.path.join(
+        HydraConfig.get().runtime.output_dir, 'explainer.joblib'
+    )
+    joblib.dump(explainer, explainer_path)
+    mlflow.log_artifact(explainer_path, artifact_path='explainer_artifact')
+
+    feature_path = os.path.join(
+        HydraConfig.get().runtime.output_dir, 'feature_names.joblib'
+    )
+    feature_names = preprocessor.get_feature_names_out()
+    joblib.dump(feature_names, feature_path)
+    mlflow.log_artifact(feature_path, artifact_path='explainer_artifact')
+
+    logger.info('Explainer logged to MLflow')
+
+
 @hydra.main(
     config_path=os.path.join(PROJECT_ROOT, 'conf'),
     config_name='config',
@@ -191,6 +218,8 @@ def main(cfg: DictConfig) -> float:
 
         log_feature_importance(model)
         mlflow.sklearn.log_model(model, name='model')
+
+        log_explainer(model, X_train)
 
         logger.info(f'Run {run_name} logged to MLflow')
 
