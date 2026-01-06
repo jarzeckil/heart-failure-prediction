@@ -2,3 +2,5 @@
     remote = mylocal
 ['remote "mylocal"']
     url = /tmp/dvc-storage
+['remote "origin"']
+    url = https://dagshub.com/jarzeckil/heart-failure-prediction.dvc
