@@ -36,3 +36,6 @@ train-multirun: ## run training with multirun
 
 export-model: ## export latest model from mlflow to joblib
 	poetry run python src/heart_failure_prediction/export_model.py
+
+dvc: ## push changes to remote repository
+	poetry run dvc push -r origin
