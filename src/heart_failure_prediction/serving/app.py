@@ -106,14 +106,32 @@ def explain(record: HeartDiseaseRecord):
         preprocessor: ColumnTransformer = model.named_steps['preprocessing']
         X = preprocessor.transform(data)
 
-        shap_values = explainer.shap_values(X)
+        shap_values = explainer.shap_values(X)[0]
 
-        explanation = dict(zip(feature_names, shap_values.tolist()[0], strict=False))
+        input_keys = record.model_dump().keys()
+
+        aggregated_shap = {key: 0.0 for key in input_keys}
+
+        for raw_name, shap_val in zip(feature_names, shap_values, strict=True):
+            clean_name = raw_name.replace('cat_pipeline__', '').replace(
+                'num_pipeline__', ''
+            )
+
+            if clean_name.startswith('missingindicator_'):
+                clean_name = clean_name.replace('missingindicator_', '')
+
+            matched_key = next(
+                (k for k in input_keys if clean_name.startswith(k)), None
+            )
+
+            if matched_key:
+                aggregated_shap[matched_key] += shap_val
+            else:
+                aggregated_shap[clean_name] = shap_val
+
         sorted_explanation = dict(
-            sorted(explanation.items(), key=lambda item: abs(item[1]), reverse=True)
+            sorted(aggregated_shap.items(), key=lambda item: abs(item[1]), reverse=True)
         )
-
-        # TODO add cleaning of column names
 
         return sorted_explanation
 
