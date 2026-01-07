@@ -1,8 +1,11 @@
 from contextlib import asynccontextmanager
 import logging
+import os
 import os.path
 
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 import joblib
 import numpy
 import pandas as pd
@@ -138,3 +141,15 @@ def explain(record: HeartDiseaseRecord):
     except Exception as e:
         logger.error(f'Error during prediction phase: {e}')
         raise HTTPException(status_code=500) from e
+
+
+static_dir = 'static'
+
+if os.path.exists(static_dir):
+    app.mount('/assets', StaticFiles(directory=f'{static_dir}/assets'), name='assets')
+
+    @app.get('/{full_path:path}')
+    async def serve_react_app(full_path: str):
+        return FileResponse(f'{static_dir}/index.html')
+else:
+    print("⚠️ Static folder doesn't exist.")
