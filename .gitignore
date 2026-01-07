@@ -19,7 +19,7 @@ env/
 # Jupyter Notebooks
 .ipynb_checkpoints
 
-models/*
+models/model.joblib
 models/explainer_artifact/*
 !models/.gitkeep
 !models/*.dvc
